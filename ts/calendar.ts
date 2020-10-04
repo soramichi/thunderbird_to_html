@@ -107,30 +107,23 @@ $(function() {
 
     s += "<tbody>"
     for(var i = 0; i<cal_days.length; i++) {
-        let cal_day: CalDay = cal_days[i];
+        const cal_day: CalDay = cal_days[i];
 
         if (cal_day["wday"] == 0)
             s += "<tr>";
 
-        if (cal_day["day"] > 0) {
-            if (target_month.year == today.year && target_month.month == today.month && cal_day["day"] == today.day) {
-                s += "<td id=" + cal_day["day"] + " class='is-selected'>";
-            }
-            else {
-                s += "<td id=" + cal_day["day"] + ">";
-            }
-
-            s += cal_day["day"];
-        }
-        else {
+        if (cal_day["day"] > 0)
+            s += "<td id=" + cal_day["day"] + ">" + cal_day["day"] + "</td>";
+        else 
             s += "<td></td>"
-        }
-        
+
         if (cal_day["wday"] == 6)
             s += "</tr>";
     }
     s += "</tbody></table>" 
     $("#cal_body").html(s);
+    if (target_month.year == today.year && target_month.month == today.month) // highlight today
+	$("#" + today.day).addClass("is-selected");
 
     // popualte the contents of the table
     get_data(target_month.year, target_month.month);
