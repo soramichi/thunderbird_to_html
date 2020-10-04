@@ -54,16 +54,11 @@ function get_data(year: number, month: number) {
                 let tokens: Array<string> = lines[i].split(",");
                 let event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
 
-                let hour_str: string = event_date.hour < 10 ? "0" : "";
-                let min_str: string = event_date.minute < 10 ? "0" : "";
-
-                hour_str += event_date.hour;
-                min_str += event_date.minute;
-
+		// all-day event
                 if (tokens[2] == "1")
                     $("#" + event_date.day).append("<br />" + "<span class='tag is-warning'>" + tokens[1] + "</span>");
                 else
-                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold'>" + hour_str + ":" + min_str + "</span> " + tokens[1]);
+                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
             }
         }
     });
