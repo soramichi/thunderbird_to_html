@@ -80,7 +80,7 @@ function is_valid(dt: DateTime): boolean {
 
 $(function() {
     let today: DateTime = DateTime.local();
-    let target_month: DateTime;
+    let target_month, next_month, prev_month: DateTime;
     let param_dt = DateTime.fromFormat($(location).attr("search"), "?yyyy_MM");
 
     if (param_dt.isValid)
@@ -88,9 +88,22 @@ $(function() {
     else
         target_month = today;
 
-    // header
-    $("#header").html(target_month.year + "/" + target_month.month);
+    // (target_month.month + 10) % 12 + 1 == (target_month.month - 1 + 12 - 1) % 12 + 1
+    // -1 : change the origin from 1 to 0
+    // +12: offset by 12 so it does not become a negative value after subtracting 1
+    // -1 : move to the previous month
+    // %12: you know
+    // +1 : rechange the origin from 0 to 1
+    next_month = DateTime.local(target_month.year + (target_month.month == 12 ? 1 : 0), target_month.month % 12 + 1, 1, 0, 0, 0, 0);
+    prev_month = DateTime.local(target_month.year - (target_month.month == 1  ? 1 : 0), (target_month.month + 10) % 12 + 1, 1, 0, 0, 0, 0);
 
+    // header
+    let header_str: string = "";
+    header_str += ("<a href='./?" + prev_month.toFormat("yyyy_MM") + "'>&lt;" + "</a> ");
+    header_str += (target_month.year + "/" + target_month.month + " ");
+    header_str += ("<a href='./?" + next_month.toFormat("yyyy_MM") + "'>&gt;" + "</a> ");
+    $("#header").html(header_str);
+    
     // prepare the table
     let cal_days: Array<CalDay> = make_cal(target_month.year, target_month.month);
     let s: string = "<table class='table is-hoverable is-bordered'>";
