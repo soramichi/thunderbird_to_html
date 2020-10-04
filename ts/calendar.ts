@@ -2,7 +2,8 @@ var $ = require('jquery');
 import { DateTime } from 'luxon'
 
 function day_name(day: number): string {
-    let names: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    // a week should start from Monday!
+    let names: string[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     return names[day];
 }
 
@@ -18,7 +19,7 @@ interface CalDay {
 
 function make_cal(year: number, month: number): Array<CalDay> {
     const first: DateTime = DateTime.local(year, month, 1, 0, 0, 0, 0);
-    const day_first: number = first.weekday;
+    const day_first: number = first.weekday - 1; // DateTime.weekday => 1: Monday, ... 7: Sunday
 
     let inside: boolean = false;
     let n: number = 0;
