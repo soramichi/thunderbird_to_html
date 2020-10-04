@@ -1,0 +1,8 @@
+@charset "utf-8";
+
+$light-gray: #EEEEEE;
+$black: #000000;
+$table-row-active-background-color: $light-gray;
+$table-row-active-color: $black;
+
+@import "../node_modules/bulma/bulma.sass";
