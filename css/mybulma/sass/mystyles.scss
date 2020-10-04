@@ -5,4 +5,10 @@ $black: #000000;
 $table-row-active-background-color: $light-gray;
 $table-row-active-color: $black;
 
-@import "../node_modules/bulma/bulma.sass";
+@import "../node_modules/bulma/sass/utilities/_all.sass";
+@import "../node_modules/bulma/sass/base/_all.sass";
+@import "../node_modules/bulma/sass/layout/_all.sass";
+@import "../node_modules/bulma/sass/elements/table.sass";
+@import "../node_modules/bulma/sass/elements/tag.sass";
+@import "../node_modules/bulma/sass/elements/content.sass";
+@import "../node_modules/bulma/sass/elements/title.sass";
