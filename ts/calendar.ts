@@ -7,11 +7,6 @@ function day_name(day: number): string {
     return names[day];
 }
 
-function num_days(month: number): number {
-    let days: number[] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    return days[month];
-}
-
 interface CalDay {
     day: number;
     wday: number;
@@ -72,10 +67,6 @@ function get_data(year: number, month: number) {
             }
         }
     });
-}
-
-function is_valid(dt: DateTime): boolean {
-    return (dt.invalidReason == null);
 }
 
 $(function() {
