@@ -48,11 +48,11 @@ function get_data(year: number, month: number, colors: Array<string>) {
         url: "./" + year + "/" + month + ".dat",
         cache: false,
         success: function(data: string) {
-            let lines: Array<string> = data.split("\n");
-            
+            const lines: Array<string> = data.split("\n");
+
             for(var i = 0; i<lines.length; i++) {
-                let tokens: Array<string> = lines[i].split(",");
-                let event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
+                const tokens: Array<string> = lines[i].split(",");
+                const event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
 		const color = (colors[tokens[3]] != undefined ? colors[tokens[3]] : "#000000");
 
 		// all-day event
@@ -67,9 +67,9 @@ function get_data(year: number, month: number, colors: Array<string>) {
 }
 
 $(function() {
-    let today: DateTime = DateTime.local();
+    const today: DateTime = DateTime.local();
+    const param_dt = DateTime.fromFormat($(location).attr("search"), "?yyyy_MM");
     let target_month, next_month, prev_month: DateTime;
-    let param_dt = DateTime.fromFormat($(location).attr("search"), "?yyyy_MM");
 
     if (param_dt.isValid)
         target_month = param_dt;
