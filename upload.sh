@@ -8,7 +8,7 @@ mkdir deploy
 
 # upload the static files
 cp html/index.html deploy
-cp ts/calendar_bundle.js deploy
+cp ts/calendar_bundle.min.js deploy
 cp css/mybulma/css/mystyles.css deploy
 
 ftp -n << EOF
@@ -19,7 +19,7 @@ ascii
 prompt
 cd www/cal
 lcd deploy
-mput index.html calendar_bundle.js mystyles.css
+mput index.html calendar_bundle.min.js mystyles.css
 quit
 EOF
 
