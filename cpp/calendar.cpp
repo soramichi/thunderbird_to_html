@@ -29,6 +29,7 @@ struct event {
   time_t end_time_unix;
   bool all_day;
   string id;
+  int cal_id;
 };
 
 struct arg_t {
@@ -204,6 +205,9 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
   vector<event>* events = arg->events;
   map<string, recurrence_rule>* rules = arg->rules;
 
+  static map<string, int> cal_ids;
+  static int cal_id;
+
   event new_event;
 
   for(int i = 0; i<nc; i++) {
@@ -232,6 +236,13 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
     }
     else if (strcmp(names[i], "id") == 0) {
       new_event.id = string(columns[i]);
+    }
+    else if (strcmp(names[i], "cal_id") == 0) {
+      if (cal_ids.find(string(columns[i])) == cal_ids.end()) {
+	cal_ids[string(columns[i])] = cal_id++;
+      }
+
+      new_event.cal_id = cal_ids[string(columns[i])];
     }
     else {
       // should not come here
@@ -289,7 +300,7 @@ int main(int argc, char* argv[]) {
 
   if (db != NULL) {
     sqlite3_exec(db, "select item_id, icalString from cal_recurrence;", parse_rules, rules, NULL);
-    sqlite3_exec(db, "select id, title, event_start, event_end, flags from cal_events;", parse_results, &arg, NULL);
+    sqlite3_exec(db, "select cal_id, id, title, event_start, event_end, flags from cal_events;", parse_results, &arg, NULL);
     sqlite3_close(db);
   }
   else {
@@ -338,7 +349,8 @@ int main(int argc, char* argv[]) {
 
     out << it->title << ",";
 
-    out << (it->all_day ? "1" : "0") << endl;
+    out << (it->all_day ? "1" : "0") << ",";
+    out << it->cal_id << endl;
 
     year_prev = year;
     month_prev = month;

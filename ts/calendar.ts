@@ -42,7 +42,7 @@ function make_cal(year: number, month: number): Array<CalDay> {
     return ret;
 }
 
-function get_data(year: number, month: number) {
+function get_data(year: number, month: number, colors: Array<string>) {
     $.ajax({
         type: "GET",
         url: "./" + year + "/" + month + ".dat",
@@ -53,12 +53,14 @@ function get_data(year: number, month: number) {
             for(var i = 0; i<lines.length; i++) {
                 let tokens: Array<string> = lines[i].split(",");
                 let event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
+		const color = (colors[tokens[3]] != undefined ? colors[tokens[3]] : "#000000");
 
 		// all-day event
                 if (tokens[2] == "1")
                     $("#" + event_date.day).append("<br />" + "<span class='tag is-warning'>" + tokens[1] + "</span>");
-                else
-                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
+                else {
+                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold; color: " + color + ";'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
+		}
             }
         }
     });
@@ -120,6 +122,11 @@ $(function() {
     if (target_month.year == today.year && target_month.month == today.month) // highlight today
 	$("#" + today.day).addClass("is-selected");
 
+    // configure the color schemes
+    let colors: Array<string> = new Array<string>();
+    colors.push("#000080");
+    colors.push("#66CC00");
+    
     // popualte the contents of the table
-    get_data(target_month.year, target_month.month);
+    get_data(target_month.year, target_month.month, colors);
 })
