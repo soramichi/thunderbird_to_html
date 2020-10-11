@@ -54,8 +54,8 @@ function get_data(year: number, month: number) {
         success: function(data: string) {
             const lines: Array<string> = data.split("\n");
 
-            for(var i = 0; i<lines.length; i++) {
-                const tokens: Array<string> = lines[i].split(",");
+	    lines.forEach(function(line) {
+                const tokens: Array<string> = line.split(",");
                 const event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
 
 		// all-day event
@@ -64,7 +64,7 @@ function get_data(year: number, month: number) {
                 else {
                     $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold;' class='cal_id_" + tokens[3] + "'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
 		}
-            }
+            });
 
 	    set_color(0, "#000080");
 	    set_color(1, "#66CC00");
@@ -97,23 +97,21 @@ $(function() {
     header_str += (target_month.year + "/" + target_month.month + " ");
     header_str += ("<a href='./?" + next_month.toFormat("yyyy_MM") + "'>&gt;" + "</a> ");
     $("#header").html(header_str);
-    
+
     // prepare the table
+    $("#cal_body").append("<table class='table is-hoverable is-bordered'>" +
+			  "<thead id='the_thead'></thead>" +
+			  "<tbody id='the_tbody'></tbody>" +
+			  "</table>");
+
+    for(var i = 0; i<7; i++)
+        $("#the_thead").append("<th width='14%'>" + day_name(i) + "</th>");
+
     const cal_days: Array<CalDay> = make_cal(target_month.year, target_month.month);
-    let s: string = "<table class='table is-hoverable is-bordered'>";
-
-    s += "<thead>";
-    for(var i = 0; i<7; i++) {
-        s += "<th width='14%'>" + day_name(i) + "</th>";
-    }
-    s += "</thead>";
-
-    s += "<tbody>"
-    for(var i = 0; i<cal_days.length; i++) {
-        const cal_day: CalDay = cal_days[i];
-
+    let s: string;
+    cal_days.forEach(function(cal_day) {
         if (cal_day["wday"] == 0)
-            s += "<tr>";
+	    s += "<tr>";
 
         if (cal_day["day"] > 0)
             s += "<td id=" + cal_day["day"] + ">" + cal_day["day"] + "</td>";
@@ -122,10 +120,11 @@ $(function() {
 
         if (cal_day["wday"] == 6)
             s += "</tr>";
-    }
-    s += "</tbody></table>" 
-    $("#cal_body").html(s);
-    if (target_month.year == today.year && target_month.month == today.month) // highlight today
+    });
+    $("#the_tbody").append(s);
+
+    // highlight today
+    if (target_month.year == today.year && target_month.month == today.month)
 	$("#" + today.day).addClass("is-selected");
     
     // popualte the contents of the table
