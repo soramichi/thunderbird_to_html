@@ -42,7 +42,11 @@ function make_cal(year: number, month: number): Array<CalDay> {
     return ret;
 }
 
-function get_data(year: number, month: number, colors: Array<string>) {
+function set_color(cal_id: number, color: string): void {
+    $(".cal_id_" + cal_id).css("color", color);
+}
+
+function get_data(year: number, month: number) {
     $.ajax({
         type: "GET",
         url: "./" + year + "/" + month + ".dat",
@@ -53,15 +57,17 @@ function get_data(year: number, month: number, colors: Array<string>) {
             for(var i = 0; i<lines.length; i++) {
                 const tokens: Array<string> = lines[i].split(",");
                 const event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
-		const color = (colors[tokens[3]] != undefined ? colors[tokens[3]] : "#000000");
 
 		// all-day event
                 if (tokens[2] == "1")
                     $("#" + event_date.day).append("<br />" + "<span class='tag is-warning'>" + tokens[1] + "</span>");
                 else {
-                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold; color: " + color + ";'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
+                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold;' class='cal_id_" + tokens[3] + "'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
 		}
             }
+
+	    set_color(0, "#000080");
+	    set_color(1, "#66CC00");
         }
     });
 }
@@ -93,7 +99,7 @@ $(function() {
     $("#header").html(header_str);
     
     // prepare the table
-    let cal_days: Array<CalDay> = make_cal(target_month.year, target_month.month);
+    const cal_days: Array<CalDay> = make_cal(target_month.year, target_month.month);
     let s: string = "<table class='table is-hoverable is-bordered'>";
 
     s += "<thead>";
@@ -121,12 +127,7 @@ $(function() {
     $("#cal_body").html(s);
     if (target_month.year == today.year && target_month.month == today.month) // highlight today
 	$("#" + today.day).addClass("is-selected");
-
-    // configure the color schemes
-    let colors: Array<string> = new Array<string>();
-    colors.push("#000080");
-    colors.push("#66CC00");
     
     // popualte the contents of the table
-    get_data(target_month.year, target_month.month, colors);
+    get_data(target_month.year, target_month.month);
 })
