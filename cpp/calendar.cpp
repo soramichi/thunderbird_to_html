@@ -28,6 +28,7 @@ struct event {
   time_t start_time_unix;
   time_t end_time_unix;
   bool all_day;
+  bool recurrence;
   string id;
   int cal_id;
 };
@@ -38,6 +39,7 @@ struct arg_t {
 };
 
 const int FLAG_ALL_DAY = (1<<3);
+const int FLAG_RECURRENCE = (1<<4);
 
 tm make_tm(int year, int month, int day) {
   tm ret;
@@ -233,6 +235,7 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
     else if (strcmp(names[i], "flags") == 0) {
       int flags = stoi(string(columns[i]));
       new_event.all_day = (flags & FLAG_ALL_DAY);
+      new_event.recurrence = (flags & FLAG_RECURRENCE);
     }
     else if (strcmp(names[i], "id") == 0) {
       new_event.id = string(columns[i]);
@@ -266,8 +269,12 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
     }
   }
 
+  // Note: even if there exists a recurrence rule that matches the id of `new_event',
+  // we have to check `new_event.recurrence' before applying the rule
+  // because thunderbird may create events with the same exact id to manage exceptions
+  // for a recurrent event (e.g., every Monday, but Tuesday for a particular week)
   auto iter_rule = rules->find(new_event.id);
-  if (iter_rule != rules->end() && iter_rule->second.interval == recurrence_rule::WEEKLY) {
+  if (new_event.recurrence && iter_rule != rules->end() && iter_rule->second.interval == recurrence_rule::WEEKLY) {
     event additional_event = new_event;
 
     for(int i = 0; ; i++) {
