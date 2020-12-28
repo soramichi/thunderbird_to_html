@@ -126,6 +126,18 @@ time_t proceed_one_month(tm* t) {
   return unix_time;
 }
 
+tm icalstr_to_tm(string str, int skip = 0) {
+  size_t year_start = skip;
+  size_t month_start = year_start + 4;
+  size_t day_start = month_start + 2;
+
+  int year = stoi(str.substr(year_start, 4));
+  int month = stoi(str.substr(month_start, 2));
+  int day = stoi(str.substr(day_start, 2));
+
+  return make_tm(year, month, day);
+}
+
 string wday_name(int wday) {
   string names[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}; // a week must start from Monday
   return names[wday];
@@ -179,18 +191,11 @@ int parse_rules(void* _rules, int nc, char** columns, char** names) {
 
   // check if the rule expires in a future date
   if (rule.find("UNTIL") != string::npos) {
-    // e.g., UNTIL=20200924T080000Z
-    size_t year_start = rule.find("UNTIL") + string("UNTIL=").length();
-    size_t month_start = year_start + 4;
-    size_t day_start = month_start + 2;
-
-    int year = stoi(rule.substr(year_start, 4));
-    int month = stoi(rule.substr(month_start, 2));
-    int day = stoi(rule.substr(day_start, 2));
-
+    // rule: XXXX; UNTIL=20200924T080000
+    tm until_tm = icalstr_to_tm(rule, rule.find("UNTIL") + string("UNTIL=").length());
     auto it = rules->find(item_id);
     if (it != rules->end()) {
-      it->second.until = new tm(make_tm(year, month, day));
+      it->second.until = new tm(until_tm);
     }
     else {
       // should not come here
