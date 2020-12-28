@@ -18,6 +18,7 @@ class recurrence_rule {
 public:
   enum RULE { WEEKLY, MONTHLY } interval;
   tm* until;
+  vector<tm*> exceptions;
   recurrence_rule(RULE _interval): interval(_interval), until(NULL) { }
 };
 
@@ -59,7 +60,7 @@ tm make_tm(int year, int month, int day) {
 }
 
 bool same_day(const tm& t1, const tm& t2) {
-  return (t1.tm_year == t1.tm_year) && (t1.tm_yday == t2.tm_yday); 
+  return (t1.tm_year == t1.tm_year) && (t1.tm_yday == t2.tm_yday);
 }
 
 bool operator<(const event& e1, const event& e2) {
@@ -184,9 +185,18 @@ int parse_rules(void* _rules, int nc, char** columns, char** names) {
   else if (rule.find("MONTHLY") != string::npos) {
     rules->insert({item_id, recurrence_rule(recurrence_rule::MONTHLY)});
   }
-  else {
-    cout << "Warning: recurrence rule that this program does not understand is met (L" << __LINE__ << "): " << endl
-         << rule << endl;
+  // find the exceptional dates
+  else if (rule.find("EXDATE") != string::npos) {
+    tm exdate_tm = icalstr_to_tm(rule, rule.find("EXDATE") + string("EXDATE;").length());
+
+    auto rule = rules->find(item_id);
+    if (rule == rules->end()) {
+      cerr << "Fatal: an exception rule for an event that is not yet parsed is found!" << endl;
+      exit(1);
+    }
+    else {
+      rule->second.exceptions.push_back(new tm(exdate_tm));
+    }
   }
 
   // check if the rule expires in a future date
@@ -269,7 +279,7 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
 
       additional_event.start_time_unix = proceed_days(&additional_event.start_time, i + 1);
       additional_event.end_time_unix = proceed_days(&additional_event.end_time, i + 1);
-
+      
       events->push_back(additional_event);
     }
   }
@@ -285,9 +295,11 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
     for(int i = 0; ; i++) {
       additional_event.start_time_unix = proceed_one_week(&additional_event.start_time);
       additional_event.end_time_unix = proceed_one_week(&additional_event.end_time);
-
+      additional_event.start_time = *localtime(&additional_event.start_time_unix);
+      additional_event.end_time = *localtime(&additional_event.end_time_unix);
+ 
       // if there is a rule that specifies the end time, we obey it
-      if (iter_rule ->second.until != NULL) {
+      if (iter_rule->second.until != NULL) {
         if (additional_event.start_time_unix > mktime(iter_rule->second.until))
           break;
       }
@@ -296,7 +308,17 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
           break;
       }
 
-      events->push_back(additional_event);
+      // if the date to be added is in the exceptions list, skip it
+      bool skip = false;
+      for(const auto& ex: iter_rule->second.exceptions) {
+	if(same_day(additional_event.start_time, *ex)) {
+	  skip = true;
+	}
+      }
+
+      if (!skip) {
+	events->push_back(additional_event);
+      }
     }
   }
 
