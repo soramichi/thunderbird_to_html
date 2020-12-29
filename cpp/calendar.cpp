@@ -20,6 +20,14 @@ public:
   tm* until;
   vector<tm*> exceptions;
   recurrence_rule(RULE _interval): interval(_interval), until(NULL) { }
+  ~recurrence_rule() {
+    if (until != NULL) {
+      delete until;
+    }
+    for(auto e: exceptions) {
+      delete e;
+    }
+  }
 };
 
 struct event {
@@ -391,6 +399,10 @@ int main(int argc, char* argv[]) {
     wday_prev = wday;
     yday_prev = yday;
   }
+
+  sqlite3_close(db);
+  delete events;
+  delete rules;
 
   return 0;
 }
