@@ -30,23 +30,6 @@ public:
   }
 };
 
-struct event {
-  string title;
-  tm start_time;
-  tm end_time;
-  time_t start_time_unix;
-  time_t end_time_unix;
-  bool all_day;
-  bool recurrence;
-  string id;
-  int cal_id;
-};
-
-struct arg_t {
-  vector<event>* events;
-  map<string, recurrence_rule>* rules;
-};
-
 const int FLAG_ALL_DAY = (1<<3);
 const int FLAG_RECURRENCE = (1<<4);
 
@@ -69,18 +52,6 @@ tm make_tm(int year, int month, int day) {
 
 bool same_day(const tm& t1, const tm& t2) {
   return (t1.tm_year == t1.tm_year) && (t1.tm_yday == t2.tm_yday);
-}
-
-bool operator<(const event& e1, const event& e2) {
-  // prioritize all_day events
-  if (same_day(e1.start_time, e2.start_time)) {
-    if (e1.all_day)
-      return true;
-    else if (e2.all_day)
-      return false;
-  }
-
-  return e1.start_time_unix < e2.start_time_unix;
 }
 
 // 1. mktime() fixes overflows automatically (e.g., July 32 -> August 1).
@@ -151,6 +122,46 @@ string wday_name(int wday) {
   string names[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}; // a week must start from Monday
   return names[wday];
 }
+
+struct event {
+  string title;
+  tm start_time;
+  tm end_time;
+  time_t start_time_unix;
+  time_t end_time_unix;
+  bool all_day;
+  bool recurrence;
+  string id;
+  int cal_id;
+
+  void proceed_days(int n) {
+    this->start_time_unix = ::proceed_days(&this->start_time, n);
+    this->end_time_unix = ::proceed_days(&this->end_time, n);
+    this->start_time = *localtime(&this->start_time_unix);
+    this->end_time = *localtime(&this->end_time_unix);
+  }
+
+  void proceed_one_week() {
+    this->proceed_days(7);
+  }
+
+  bool operator<(const event& rhs) const {
+    // prioritize all_day events
+    if (same_day(this->start_time, rhs.start_time)) {
+      if (this->all_day)
+	return true;
+      else if (rhs.all_day)
+	return false;
+    }
+
+    return this->start_time_unix < rhs.start_time_unix;
+  }
+};
+
+struct arg_t {
+  vector<event>* events;
+  map<string, recurrence_rule>* rules;
+};
 
 sqlite3* open_db(const string& filename) {
   int rc;
@@ -284,10 +295,7 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
     // -1 because a 1-day long event spans across 2 days in the thunderbird's sementics
     for(int i = 0; i < new_event.end_time.tm_mday - new_event.start_time.tm_mday - 1; i++) {
       event additional_event = new_event;
-
-      additional_event.start_time_unix = proceed_days(&additional_event.start_time, i + 1);
-      additional_event.end_time_unix = proceed_days(&additional_event.end_time, i + 1);
-      
+      additional_event.proceed_days(i + 1);
       events->push_back(additional_event);
     }
   }
@@ -301,10 +309,7 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
     event additional_event = new_event;
 
     for(int i = 0; ; i++) {
-      additional_event.start_time_unix = proceed_one_week(&additional_event.start_time);
-      additional_event.end_time_unix = proceed_one_week(&additional_event.end_time);
-      additional_event.start_time = *localtime(&additional_event.start_time_unix);
-      additional_event.end_time = *localtime(&additional_event.end_time_unix);
+      additional_event.proceed_one_week();
  
       // if there is a rule that specifies the end time, we obey it
       if (iter_rule->second.until != NULL) {
