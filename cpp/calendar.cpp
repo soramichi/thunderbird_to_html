@@ -313,7 +313,9 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
  
       // if there is a rule that specifies the end time, we obey it
       if (iter_rule->second.until != NULL) {
-        if (additional_event.start_time_unix > mktime(iter_rule->second.until))
+	// "UNTIL" in icalString points to 00:00:00 in the day to which the last event belongs,
+	// so we have to compare the beginning of the next day of "UNTIL" and `additional_event'
+	if (additional_event.start_time_unix >= proceed_one_day(iter_rule->second.until))
           break;
       }
       // if there is no such rule, repeat for a year
