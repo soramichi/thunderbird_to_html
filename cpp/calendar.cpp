@@ -182,14 +182,14 @@ sqlite3* open_db(const string& filename) {
 int parse_rules(void* _rules, int nc, char** columns, char** names) {
   map<string, recurrence_rule>* rules = reinterpret_cast<map<string, recurrence_rule>*>(_rules);
   string item_id;
-  string rule;
+  string icalString;
 
   for(int i = 0; i<nc; i++) {
     if (strcmp(names[i], "item_id") == 0) {
       item_id = string(columns[i]);
     }
     else if (strcmp(names[i], "icalString") == 0) {
-      rule = string(columns[i]);
+      icalString = string(columns[i]);
     }
     else {
       cout << "Fatal: should not come here (L" << __LINE__ << ")" << endl;
@@ -197,16 +197,16 @@ int parse_rules(void* _rules, int nc, char** columns, char** names) {
     }
   }
 
-  // check the interval of the rule
-  if (rule.find("WEEKLY") != string::npos) {
+  // check the interval of the icalString
+  if (icalString.find("WEEKLY") != string::npos) {
     rules->insert({item_id, recurrence_rule(recurrence_rule::WEEKLY)});
   }
-  else if (rule.find("MONTHLY") != string::npos) {
+  else if (icalString.find("MONTHLY") != string::npos) {
     rules->insert({item_id, recurrence_rule(recurrence_rule::MONTHLY)});
   }
   // find the exceptional dates
-  else if (rule.find("EXDATE") != string::npos) {
-    tm exdate_tm = icalstr_to_tm(rule, rule.find("EXDATE") + string("EXDATE;").length());
+  else if (icalString.find("EXDATE") != string::npos) {
+    tm exdate_tm = icalstr_to_tm(icalString, icalString.find("EXDATE") + string("EXDATE;").length());
 
     auto rule = rules->find(item_id);
     if (rule == rules->end()) {
@@ -219,9 +219,9 @@ int parse_rules(void* _rules, int nc, char** columns, char** names) {
   }
 
   // check if the rule expires in a future date
-  if (rule.find("UNTIL") != string::npos) {
-    // rule: XXXX; UNTIL=20200924T080000
-    tm until_tm = icalstr_to_tm(rule, rule.find("UNTIL") + string("UNTIL=").length());
+  if (icalString.find("UNTIL") != string::npos) {
+    // icalString: XXXX; UNTIL=20200924T080000
+    tm until_tm = icalstr_to_tm(icalString, icalString.find("UNTIL") + string("UNTIL=").length());
     auto it = rules->find(item_id);
     if (it != rules->end()) {
       it->second.until = new tm(until_tm);
