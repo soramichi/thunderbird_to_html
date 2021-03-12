@@ -46,6 +46,17 @@ function set_color(cal_id: number, color: string): void {
     $(".time_cal_id_" + cal_id).css("color", color);
 }
 
+function toggle_visible(cal_id: number): void {
+    const current: string = $(".event_cal_id_" + cal_id).css("display");
+
+    if (current == "inline") {
+	$(".event_cal_id_" + cal_id).css("display", "none");
+    }
+    else {
+	$(".event_cal_id_" + cal_id).css("display", "inline");
+    }
+}
+
 function get_data(year: number, month: number) {
     $.ajax({
         type: "GET",
@@ -84,6 +95,19 @@ function get_data(year: number, month: number) {
 	    cal_ids.forEach(function(cal_id) {
 		set_color(cal_id, colors[cal_id]);
 	    });
+
+	    // add toggle buttons
+	    cal_ids.forEach(function(cal_id) {
+		$("#toggle_buttons").append("<a id='toggle_button_" + cal_id + "' style='color:" + colors[cal_id] + "; text-decoration: underline'>" +
+					    "Toggle calendar " + cal_id + "</a>" +
+					    "<br />"
+					   );
+
+		$("#toggle_button_" + cal_id).on("click", function() {
+		    toggle_visible(cal_id);
+		});
+	    });
+
         }
     });
 }
