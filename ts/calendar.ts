@@ -43,7 +43,7 @@ function make_cal(year: number, month: number): Array<CalDay> {
 }
 
 function set_color(cal_id: number, color: string): void {
-    $(".cal_id_" + cal_id).css("color", color);
+    $(".time_cal_id_" + cal_id).css("color", color);
 }
 
 function get_data(year: number, month: number) {
@@ -62,7 +62,7 @@ function get_data(year: number, month: number) {
                 if (tokens[2] == "1")
                     $("#" + event_date.day).append("<br />" + "<span class='tag is-warning'>" + tokens[1] + "</span>");
                 else {
-                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold;' class='cal_id_" + tokens[3] + "'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
+                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold;' class='time_cal_id_" + tokens[3] + "'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
 		}
             });
 
