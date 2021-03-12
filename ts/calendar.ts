@@ -56,6 +56,9 @@ function get_data(year: number, month: number) {
 	    const colors: Array<string> = ["#000080", "#66CC00"];
 	    let cal_ids: Set<number> = new Set();
 
+	    // delete the empty line at the end
+	    lines.pop();
+
 	    // populate the events
 	    lines.forEach(function(line) {
                 const tokens: Array<string> = line.split(",");
