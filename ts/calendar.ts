@@ -53,21 +53,34 @@ function get_data(year: number, month: number) {
         cache: false,
         success: function(data: string) {
             const lines: Array<string> = data.split("\n");
+	    const colors: Array<string> = ["#000080", "#66CC00"];
+	    let cal_ids: Set<number> = new Set();
 
+	    // populate the events
 	    lines.forEach(function(line) {
                 const tokens: Array<string> = line.split(",");
                 const event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
+		cal_ids.add(parseInt(tokens[3]));
 
 		// all-day event
                 if (tokens[2] == "1")
-                    $("#" + event_date.day).append("<br />" + "<span class='tag is-warning'>" + tokens[1] + "</span>");
+                    $("#" + event_date.day).append("<br />" +
+						   "<span class='event_cal_id_" + tokens[3] + "'>" +
+						   "<span class='tag is-warning'>" + tokens[1] + "</span>" +
+						   "</span>");
                 else {
-                    $("#" + event_date.day).append("<br />" + "<span style='font-weight: bold;' class='time_cal_id_" + tokens[3] + "'>" + event_date.toFormat("HH:mm") + "</span> " + tokens[1]);
+                    $("#" + event_date.day).append("<br />" +
+						   "<span class='event_cal_id_" + tokens[3] + "'>" +
+						   "<span style='font-weight: bold;' class='time_cal_id_" + tokens[3] + "'>" + event_date.toFormat("HH:mm") + "</span> " +
+						   tokens[1] +
+						   "</span>");
 		}
             });
 
-	    set_color(0, "#000080");
-	    set_color(1, "#66CC00");
+	    // set colors of the events
+	    cal_ids.forEach(function(cal_id) {
+		set_color(cal_id, colors[cal_id]);
+	    });
         }
     });
 }
