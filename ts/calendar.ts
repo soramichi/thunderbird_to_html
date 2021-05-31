@@ -15,12 +15,13 @@ interface CalDay {
 function make_cal(year: number, month: number): Array<CalDay> {
     const first: DateTime = DateTime.local(year, month, 1, 0, 0, 0, 0);
     const wday_first: number = first.weekday - 1; // DateTime.weekday => 1: Monday, ... 7: Sunday
+    const n_days: number = first.daysInMonth;
 
     let inside: boolean = false;
     let n: number = 0;
     let ret = new Array<CalDay>();
 
-    for(let w: number = 0; w<5; w++) {
+    for(let w: number = 0; ; w++) {
         for(let wd: number = 0; wd<7; wd++) {
             if (wd >= wday_first && !inside)
                 inside = true;
@@ -37,6 +38,10 @@ function make_cal(year: number, month: number): Array<CalDay> {
                 ret.push({day: 0, wday: wd});
             }
         }
+
+	if (n >= n_days) {
+	    break;
+	}
     }
 
     return ret;
