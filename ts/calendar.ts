@@ -139,7 +139,7 @@ $(function() {
     // header
     let header_str: string = "";
     header_str += ("<a href='./?" + prev_month.toFormat("yyyy_MM") + "'>&lt;" + "</a> ");
-    header_str += (target_month.year + "/" + target_month.month + " ");
+    header_str += ("<a href='./?" + today.toFormat("yyyy_MM") + "'>" + target_month.year + "/" + target_month.month + "</a> ");
     header_str += ("<a href='./?" + next_month.toFormat("yyyy_MM") + "'>&gt;" + "</a> ");
     $("#header").html(header_str);
 
