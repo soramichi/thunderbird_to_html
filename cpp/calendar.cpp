@@ -396,10 +396,9 @@ int main(int argc, char* argv[]) {
     out << setw(2) << setfill('0') << it->start_time.tm_hour << ":"
         << setw(2) << setfill('0') << it->start_time.tm_min << ",";
 
-    out << it->title << ",";
-
     out << (it->all_day ? "1" : "0") << ",";
-    out << it->cal_id << endl;
+    out << it->cal_id << ",";
+    out << it->title << endl;
 
     year_prev = year;
     month_prev = month;

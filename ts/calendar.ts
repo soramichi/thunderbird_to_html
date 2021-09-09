@@ -79,19 +79,20 @@ function get_data(year: number, month: number) {
 	    lines.forEach(function(line) {
                 const tokens: Array<string> = line.split(",");
                 const event_date: DateTime = DateTime.fromFormat(tokens[0], "MM/dd HH:mm");
-		cal_ids.add(parseInt(tokens[3]));
+		const title: string = tokens.slice(3).join(",");
+		cal_ids.add(parseInt(tokens[2]));
 
 		// all-day event
-                if (tokens[2] == "1")
+                if (tokens[1] == "1")
                     $("#" + event_date.day).append("<br />" +
-						   "<span class='event_cal_id_" + tokens[3] + "'>" +
-						   "<span class='tag is-warning'>" + tokens[1] + "</span>" +
+						   "<span class='event_cal_id_" + tokens[2] + "'>" +
+						   "<span class='tag is-warning'>" + title + "</span>" +
 						   "</span>");
                 else {
                     $("#" + event_date.day).append("<br />" +
-						   "<span class='event_cal_id_" + tokens[3] + "'>" +
-						   "<span style='font-weight: bold;' class='time_cal_id_" + tokens[3] + "'>" + event_date.toFormat("HH:mm") + "</span> " +
-						   tokens[1] +
+						   "<span class='event_cal_id_" + tokens[2] + "'>" +
+						   "<span style='font-weight: bold;' class='time_cal_id_" + tokens[2] + "'>" + event_date.toFormat("HH:mm") + "</span> " +
+						   title +
 						   "</span>");
 		}
             });
