@@ -283,6 +283,7 @@ int parse_results(void* _arg, int nc, char** columns, char** names) {
     }
     else {
       // should not come here
+      cout << "Fatal: should not come here (L:" << __LINE__ << ")" << endl;
       return 1;
     }
   }
