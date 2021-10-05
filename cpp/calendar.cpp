@@ -351,6 +351,7 @@ int main(int argc, char* argv[]) {
   if (db != NULL) {
     sqlite3_limit(db, SQLITE_LIMIT_WORKER_THREADS, 1);
     sqlite3_exec(db, "select item_id, icalString from cal_recurrence;", parse_rules, rules, NULL);
+    sqlite3_limit(db, SQLITE_LIMIT_WORKER_THREADS, 1);
     sqlite3_exec(db, "select cal_id, id, title, event_start, event_end, flags from cal_events;", parse_results, &arg, NULL);
     sqlite3_close(db);
   }
