@@ -35,6 +35,7 @@ cp -r cpp/data deploy
 
 for y in `ls -1 ./deploy/data`; do
     echo $y
+    sleep 10
 ftp -n << EOF
 open $s
 user $u $p
