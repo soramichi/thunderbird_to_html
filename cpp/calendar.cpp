@@ -42,7 +42,8 @@ tm make_tm(int year, int month, int day) {
   ret.tm_hour = 0;
   ret.tm_min = 0;
   ret.tm_sec = 0;
-
+  ret.tm_isdst = 0;
+  
   // mktime automatically fixes tm_wday and tm_yday,
   // so we do not need do calculate them
   mktime(&ret);
