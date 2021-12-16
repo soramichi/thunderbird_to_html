@@ -51,7 +51,7 @@ tm make_tm(int year, int month, int day) {
 }
 
 bool same_day(const tm& t1, const tm& t2) {
-  return (t1.tm_year == t1.tm_year) && (t1.tm_yday == t2.tm_yday);
+  return (t1.tm_year == t2.tm_year) && (t1.tm_yday == t2.tm_yday);
 }
 
 // 1. mktime() fixes overflows automatically (e.g., July 32 -> August 1).
