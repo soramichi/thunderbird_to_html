@@ -34,7 +34,7 @@ const int FLAG_ALL_DAY = (1<<3);
 const int FLAG_RECURRENCE = (1<<4);
 
 tm make_tm(int year, int month, int day) {
-  tm ret;
+  tm ret{};
 
   ret.tm_year = year - 1900;
   ret.tm_mon = month - 1;
@@ -126,8 +126,8 @@ string wday_name(int wday) {
 
 struct event {
   string title;
-  tm start_time;
-  tm end_time;
+  tm start_time{};
+  tm end_time{};
   time_t start_time_unix;
   time_t end_time_unix;
   bool all_day;
